@@ -9,15 +9,15 @@ export const createPost = async (req, res) => {
   try {
     const { caption, image, exchangeAvailable, category, bookId, condition, maxDuration } = req.body;
 
-    if (!caption) {
+    if (!caption && !image && !bookId) {
       return res.status(400).json({
-        message: "Caption is required",
+        message: "Post cannot be empty. Please provide text or an image.",
       });
     }
 
     const post = await Post.create({
       user: req.user.id,
-      caption,
+      caption: caption || "",
       image: image || "", // image can be empty if it's a book post
       exchangeAvailable: exchangeAvailable || false,
       category: category || "All",

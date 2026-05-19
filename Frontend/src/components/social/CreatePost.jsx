@@ -17,7 +17,7 @@ const CreatePost = ({ onPostCreated }) => {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
   const [exchangeAvailable, setExchangeAvailable] = useState(isExchangePage);
-  const [category, setCategory] = useState("Fiction");
+  const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("Like New");
   const [maxDuration, setMaxDuration] = useState("2 weeks");
   const [uploading, setUploading] = useState(false);
@@ -80,11 +80,11 @@ const CreatePost = ({ onPostCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (activeTab === "thought" && !caption) {
-      return alert("Please provide a caption.");
+    if (activeTab === "thought" && !caption.trim() && !imageFile) {
+      return alert("Please provide text or upload a photo.");
     }
-    if (activeTab === "book" && (!caption || !selectedBook)) {
-      return alert("Please select a book and write a caption.");
+    if (activeTab === "book" && !selectedBook) {
+      return alert("Please select a book.");
     }
 
     try {
@@ -112,7 +112,7 @@ const CreatePost = ({ onPostCreated }) => {
       setImageFile(null);
       setImagePreview("");
       setExchangeAvailable(false);
-      setCategory("Fiction");
+      setCategory("");
       setSelectedBook(null);
       setBookQuery("");
 
@@ -277,34 +277,25 @@ const CreatePost = ({ onPostCreated }) => {
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           className="w-full border-2 border-black rounded-xl p-3 my-3 text-sm min-h-[100px] bg-white focus:outline-none focus:ring-2 focus:ring-orange-400/50 resize-none"
-          required
         />
 
         <div className="flex gap-3 mb-4">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="flex-1 border-2 border-black rounded-xl p-2 text-sm font-bold bg-white"
+            className="w-full border-2 border-black rounded-xl p-2 text-sm font-bold bg-white"
           >
-            <option>Fiction</option>
-            <option>Self-Help</option>
-            <option>Fantasy</option>
-            <option>Academic</option>
-            <option>Programming</option>
-            <option>Manga</option>
-            <option>History</option>
-            <option>Biography</option>
+            <option value="" disabled>Select a category</option>
+            <option value="Fiction">Fiction</option>
+            <option value="Self-Help">Self-Help</option>
+            <option value="Fantasy">Fantasy</option>
+            <option value="Academic">Academic</option>
+            <option value="Programming">Programming</option>
+            <option value="Manga">Manga</option>
+            <option value="History">History</option>
+            <option value="Biography">Biography</option>
+            <option value="Other">Other</option>
           </select>
-
-          <label className="flex-1 flex items-center justify-center gap-2 border-2 border-black rounded-xl p-2 bg-white cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={exchangeAvailable}
-              onChange={(e) => setExchangeAvailable(e.target.checked)}
-              className="accent-black"
-            />
-            <span className="text-xs font-bold uppercase tracking-tighter">Exchange?</span>
-          </label>
         </div>
 
         {activeTab === "book" && (
