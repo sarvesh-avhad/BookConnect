@@ -18,8 +18,11 @@ export const searchBooks = async (req, res) => {
             const response = await axios.get(url);
             return response.data;
         } catch (error) {
+            if (error.response?.status === 429) {
+                // If quota is exceeded, throw immediately to fallback
+                throw error;
+            }
             if (attempts <= 1) throw error;
-            // Simple exponential backoff
             const delay = (4 - attempts) * 1000;
             console.warn(`Google Books API call failed. Retrying in ${delay}ms... (${attempts - 1} attempts left)`);
             await new Promise(resolve => setTimeout(resolve, delay));
@@ -41,14 +44,34 @@ export const searchBooks = async (req, res) => {
 
         res.json(books);
     } catch (error) {
-        console.error("Google Books API Error:", error.response?.data?.error?.message || error.message);
+        console.warn("Google Books API Error:", error.response?.data?.error?.message || error.message);
         
-        const status = error.response?.status || 500;
-        const errorMessage = status === 429 
-            ? "Google Books API daily quota reached. Please add an API key for more requests." 
-            : "Error fetching data from Google Books. Please try again later.";
+        // Fallback to Open Library API
+        try {
+            console.log("Falling back to Open Library API...");
+            const openLibraryUrl = `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=20`;
+            const olResponse = await axios.get(openLibraryUrl);
             
-        res.status(status).json({ message: errorMessage });
+            const books = olResponse.data.docs?.map((item) => ({
+                googleBooksId: item.key.split("/").pop() || item.key, // fallback id
+                title: item.title,
+                authors: item.author_name || [],
+                description: "", // Open Library search typically doesn't return full descriptions
+                thumbnail: item.cover_i ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg` : "",
+                pageCount: item.number_of_pages_median || 0,
+                categories: item.subject ? item.subject.slice(0, 3) : [],
+            })) || [];
+
+            return res.json(books);
+        } catch (fallbackError) {
+            console.error("Open Library API Fallback Error:", fallbackError.message);
+            const status = error.response?.status || 500;
+            const errorMessage = status === 429 
+                ? "Book search services are currently busy. Please try again later." 
+                : "Error fetching data from book services. Please try again later.";
+                
+            res.status(status).json({ message: errorMessage });
+        }
     }
 };
 
