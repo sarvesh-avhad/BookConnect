@@ -1,21 +1,24 @@
-PS C:\Users\ASUS\OneDrive\Desktop\BookConnect> git status
-On branch main
-Your branch and 'origin/main' have diverged,
-and have 2 and 1 different commits each, respectively.
-  (use "git pull" if you want to integrate the remote branch with yours)
+# Dependencies
+node_modules/
 
-Last commands done (2 commands done):
-   pick 0d71755 # Removed .env from tracking
-   pick 3f0ae9e # Clean repo: removed node_modules and added gitignore
-No commands remaining.
+# Environment files
+.env
 
-You have unmerged paths.
-  (fix conflicts and run "git commit")
-  (use "git merge --abort" to abort the merge)
+# Logs
+logs
+*.log
+npm-debug.log*
 
-Unmerged paths:
-  (use "git add <file>..." to mark resolution)
-        both added:      .gitignore
+# Build folders
+dist/
+build/
 
-no changes added to commit (use "git add" and/or "git commit -a")
-PS C:\Users\ASUS\OneDrive\Desktop\BookConnect> 
+# OS files
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# Coverage
+coverage/
