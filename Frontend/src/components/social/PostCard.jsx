@@ -28,7 +28,7 @@ const timeAgo = (date) => {
 
 /* ---------- Component ---------- */
 const PostCard = ({ post, onDelete }) => {
-  const { user, updateUser } = useContext(AuthContext);
+  const { user, updateUser, refreshUser } = useContext(AuthContext);
   const { showToast } = useToast();
 
   // safety guard
@@ -92,25 +92,17 @@ const PostCard = ({ post, onDelete }) => {
 
       if (isFollowing) {
         await unfollowUser(targetId);
-        updateUser({
-          ...user,
-          following: user.following.filter((f) => {
-            const fId = f._id || f.id || f;
-            return String(fId) !== String(targetId);
-          }),
-        });
+        if (refreshUser) await refreshUser();
         showToast("Unfollowed", "info");
       } else {
         await followUser(targetId);
-        updateUser({
-          ...user,
-          following: [...(user.following || []), targetId],
-        });
+        if (refreshUser) await refreshUser();
         showToast("Following! ✨");
       }
     } catch (err) {
       console.error("Follow toggle failed", err);
-      showToast("Action failed", "error");
+      const errorMsg = err.response?.data?.message || "Action failed";
+      showToast(errorMsg, "error");
     } finally {
       setFollowLoading(false);
     }

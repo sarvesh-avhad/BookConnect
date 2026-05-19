@@ -1,7 +1,7 @@
 import PostCard from "../social/PostCard";
 import { Bookmark, BookOpen } from "lucide-react";
 
-const ProfileContent = ({ activeTab, posts = [], savedPosts = [] }) => {
+const ProfileContent = ({ activeTab, posts = [], savedPosts = [], onDelete }) => {
   if (activeTab === "Posts") {
     return (
       <div className="p-6 flex flex-col gap-6 items-center">
@@ -12,7 +12,7 @@ const ProfileContent = ({ activeTab, posts = [], savedPosts = [] }) => {
             <p className="text-sm">Share your first book!</p>
           </div>
         ) : (
-          posts.map((post) => <PostCard key={post._id} post={post} />)
+          posts.map((post) => <PostCard key={post._id} post={post} onDelete={onDelete} />)
         )}
       </div>
     );
@@ -28,7 +28,7 @@ const ProfileContent = ({ activeTab, posts = [], savedPosts = [] }) => {
             <p className="text-sm">Bookmark posts to find them here.</p>
           </div>
         ) : (
-          savedPosts.map((post) => <PostCard key={post._id} post={post} />)
+          savedPosts.map((post) => <PostCard key={post._id} post={post} onDelete={onDelete} />)
         )}
       </div>
     );

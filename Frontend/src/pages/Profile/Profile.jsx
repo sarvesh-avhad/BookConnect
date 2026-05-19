@@ -49,6 +49,11 @@ const Profile = () => {
     );
   }
 
+  const handleDeletePost = (postId) => {
+    setPosts((prev) => prev.filter((p) => p._id !== postId));
+    setSavedPosts((prev) => prev.filter((p) => p._id !== postId));
+  };
+
   return (
     <DashboardLayout>
       <div className="h-full flex flex-col">
@@ -64,6 +69,7 @@ const Profile = () => {
             activeTab={activeTab}
             posts={posts}
             savedPosts={savedPosts}
+            onDelete={handleDeletePost}
           />
         </div>
       </div>

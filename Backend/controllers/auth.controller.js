@@ -47,15 +47,13 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email })
+      .populate("followers", "name avatar")
+      .populate("following", "name avatar");
 
     if (user && (await user.matchPassword(password))) {
       res.json({
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-        },
+        user,
         token: generateToken(user._id),
       });
     } else {
@@ -103,13 +101,13 @@ export const googleAuth = async (req, res) => {
       });
     }
 
+    const populatedUser = await User.findById(user._id)
+      .select("-password")
+      .populate("followers", "name avatar")
+      .populate("following", "name avatar");
+
     res.json({
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-      },
+      user: populatedUser,
       token: generateToken(user._id),
     });
   } catch (err) {
@@ -146,13 +144,12 @@ export const updateProfile = async (req, res) => {
 
     await user.save();
 
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      bio: user.bio,
-      avatar: user.avatar,
-    });
+    const updatedUser = await User.findById(user._id)
+      .select("-password")
+      .populate("followers", "name avatar")
+      .populate("following", "name avatar");
+
+    res.json(updatedUser);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to update profile" });
